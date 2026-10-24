@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Browser-Z</string>
+    <string name="shortcut_new_tab">New tab</string>
+    <string name="shortcut_new_tab_long">Open a new tab</string>
+    <string name="shortcut_incognito">New incognito tab</string>
+    <string name="shortcut_incognito_long">Open a new incognito tab</string>
+    <string name="widget_search_hint">Search or type a web address</string>
+    <string name="widget_description">Search with Browser-Z from the home screen</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="new_tab"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_new_tab"
+        android:shortcutLongLabel="@string/shortcut_new_tab_long">
+        <intent
+            android:action="com.browserz.app.action.NEW_TAB"
+            android:targetPackage="com.browserz.app"
+            android:targetClass="com.browserz.app.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="new_incognito"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_incognito"
+        android:shortcutLongLabel="@string/shortcut_incognito_long">
+        <intent
+            android:action="com.browserz.app.action.NEW_INCOGNITO"
+            android:targetPackage="com.browserz.app"
+            android:targetClass="com.browserz.app.MainActivity" />
+    </shortcut>
+</shortcuts>

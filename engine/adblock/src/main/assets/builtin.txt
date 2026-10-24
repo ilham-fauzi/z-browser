@@ -1,0 +1,106 @@
+[Adblock Plus 2.0]
+! Browser-Z built-in list: Google AdSense / Ad Manager and the most common ad and tracker networks.
+! Syntax: Adblock Plus filter syntax (see FilterEngine).
+! --- Google AdSense, AdMob web, Ad Manager ---
+||pagead2.googlesyndication.com^
+||googlesyndication.com^
+||googleadservices.com^
+||doubleclick.net^
+||adservice.google.com^
+||adservice.google.*^
+||tpc.googlesyndication.com^
+||partner.googleadservices.com^
+||googletagservices.com^
+||2mdn.net^
+||adsense.google.com^
+||fundingchoicesmessages.google.com^
+/pagead/js/adsbygoogle.js
+/pagead/ads?
+/pagead/show_ads.js
+/adsbygoogle.js
+/show_ads_impl
+! --- Other large ad networks ---
+||adnxs.com^
+||adsrvr.org^
+||advertising.com^
+||adform.net^
+||criteo.com^
+||criteo.net^
+||taboola.com^
+||outbrain.com^
+||revcontent.com^
+||mgid.com^
+||popads.net^
+||popcash.net^
+||propellerads.com^
+||exoclick.com^
+||juicyads.com^
+||adsterra.com^
+||pubmatic.com^
+||rubiconproject.com^
+||openx.net^
+||casalemedia.com^
+||smartadserver.com^
+||amazon-adsystem.com^
+||media.net^
+||yieldmo.com^
+||teads.tv^
+||moatads.com^
+||adcolony.com^
+||unityads.unity3d.com^
+||ads.yahoo.com^
+||ads.twitter.com^
+||ads.linkedin.com^
+||ads.pinterest.com^
+||analytics.yahoo.com^
+! --- Pop-up / in-page push ad SDK (domains rotate daily, the paths do not) ---
+/act/files/tag.min.js$script,third-party
+! --- Trackers ---
+||google-analytics.com^$third-party
+||googletagmanager.com^$third-party
+||scorecardresearch.com^
+||quantserve.com^
+||hotjar.com^$third-party
+||connect.facebook.net^$third-party,script
+||facebook.com/tr^
+||bat.bing.com^
+||clarity.ms^$third-party
+||mixpanel.com^$third-party
+||segment.io^$third-party
+! --- Generic path patterns ---
+/ads/banner*
+/adserver/*
+/advert.js
+/ad-manager/*
+||*/ads/*.gif$image
+! --- Exceptions: never break first-party Google pages ---
+@@||www.google.com/adsense/$document
+! --- Element hiding: AdSense and common ad containers ---
+##ins.adsbygoogle
+##.adsbygoogle
+##.adsbygoogle-noablate
+##ins[data-ad-client]
+##ins[data-ad-slot]
+##[id^="google_ads_iframe"]
+##[id^="google_ads_frame"]
+##[id^="div-gpt-ad"]
+##[id^="aswift_"]
+##iframe[id^="aswift_"]
+##iframe[src*="googlesyndication.com"]
+##iframe[src*="doubleclick.net"]
+##iframe[src*="googleads.g.doubleclick.net"]
+##.google-auto-placed
+##.GoogleActiveViewElement
+##.ad-slot
+##.ad-container
+##.ad-banner
+##.ad-wrapper
+##.advertisement
+##.advert
+##.ads-banner
+##.banner-ads
+##.sponsored-ad
+##div[data-google-query-id]
+##div[id^="ad-slot"]
+##a[href*="googleadservices.com/pagead/aclk"]
+##a[href^="https://adclick.g.doubleclick.net"]

@@ -246,6 +246,19 @@ class WebViewBrowserSession(
         if (_media.value?.tabId == rt.id) _media.value = null
     }
 
+    /**
+     * The page changed its address without loading a new document: media it no longer shows is paused. Sites swap the
+     * page a moment after the address, so the check runs again a little later.
+     */
+    private fun pauseHiddenMedia(rt: TabRuntime, view: WebView) {
+        view.evaluateJavascript(PlaybackScript.HIDDEN_CHECK, null)
+        for (delay in HIDDEN_CHECK_DELAYS_MS) {
+            main.postDelayed({
+                if (rt.webView === view && isPlayingMedia(rt)) view.evaluateJavascript(PlaybackScript.HIDDEN_CHECK, null)
+            }, delay)
+        }
+    }
+
     private fun isPlayingMedia(rt: TabRuntime): Boolean = _media.value?.let { it.tabId == rt.id && it.playing } == true
 
     private val _previewVersion = MutableStateFlow(0)
@@ -1491,6 +1504,8 @@ class WebViewBrowserSession(
                 rt.url = url
                 rt.pageUrl = url
             }
+            // A new document already forgot its media in onPageStarted, so this only runs when the page moved itself.
+            if (isPlayingMedia(rt)) pauseHiddenMedia(rt, view)
             syncNavigation(rt, view)
             publish()
         }
@@ -1769,6 +1784,7 @@ class WebViewBrowserSession(
         const val PROBE_DELAY_MS = 400L
         const val REFRESH_TIMEOUT_MS = 15_000L
         val RESUME_DELAYS_MS = longArrayOf(300, 1_000, 2_500)
+        val HIDDEN_CHECK_DELAYS_MS = longArrayOf(300, 1_000)
         const val MAX_DIALOG_TEXT = 2_000
         const val THUMBNAIL_WIDTH = 240
         const val THUMBNAIL_ASPECT = 1.3f

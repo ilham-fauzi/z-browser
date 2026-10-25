@@ -8,6 +8,7 @@ import org.json.JSONObject
  * [HOOK] runs at document start in every frame. It reports audible media that starts, pauses or ends through
  * the `__bzPlay` bridge (muted previews are ignored), remembers the element and the page's own Media Session
  * handlers (next / previous track), and lets the top frame pass a control command down to the frame that plays.
+ * The `hidden` command pauses that media when the page no longer shows it (see [HIDDEN_CHECK]).
  */
 internal object PlaybackScript {
 
@@ -18,12 +19,16 @@ internal object PlaybackScript {
         "ms.setActionHandler=function(a,f){H[a]=f;return o(a,f);};}}catch(e){}" +
         "window.__bzMsH=H;" +
         "var meta=function(){try{var m=navigator.mediaSession&&navigator.mediaSession.metadata;return m?{t:m.title||'',a:m.artist||''}:{t:'',a:''};}catch(e){return {t:'',a:''};}};" +
-        "var send=function(s,v){var m=meta();window.__bzPlay.postMessage(JSON.stringify({s:s,v:v.tagName==='VIDEO'&&v.videoWidth>0?1:0," +
+        "var send=function(s,v){window.__bzPlaying=s==='play';var m=meta();window.__bzPlay.postMessage(JSON.stringify({s:s,v:v.tagName==='VIDEO'&&v.videoWidth>0?1:0," +
         "w:v.videoWidth||0,h:v.videoHeight||0,t:(m.t||document.title||'').slice(0,200),a:(m.a||'').slice(0,200)," +
         "n:H.nexttrack?1:0,p:H.previoustrack?1:0,top:window.top===window?1:0}));};" +
         "var on=function(e){var v=e.target;if(!v||(v.tagName!=='VIDEO'&&v.tagName!=='AUDIO'))return;" +
         "if(e.type==='playing'||e.type==='play'||e.type==='volumechange'){if(v.paused)return;if(v.muted||v.volume===0){if(window.__bzLast===v)send('pause',v);return;}" +
         "window.__bzLast=v;send('play',v);}else if(window.__bzLast===v){send(e.type==='ended'?'ended':'pause',v);}};" +
+        // Shown: in the page, rendered with a size, and in a frame that is itself shown (a hidden frame has no viewport).
+        "var shown=function(v){if(!v.isConnected||!(window.innerWidth>0)||!(window.innerHeight>0))return false;" +
+        "var s=getComputedStyle(v);if(s.display==='none'||s.visibility==='hidden')return false;" +
+        "var r=v.getBoundingClientRect();return r.width>0&&r.height>0;};" +
         "['play','playing','pause','ended','volumechange'].forEach(function(n){document.addEventListener(n,on,true);});" +
         // Commands from the top frame (see control) reach the frame that owns the player.
         "window.addEventListener('message',function(e){var d=e.data;if(!d||typeof d!=='object'||typeof d.__bz!=='string')return;" +
@@ -31,12 +36,20 @@ internal object PlaybackScript {
         "window.__bzCmd=function(a){var v=window.__bzLast;" +
         "if(a==='next'&&H.nexttrack){H.nexttrack({action:'nexttrack'});return;}" +
         "if(a==='previous'&&H.previoustrack){H.previoustrack({action:'previoustrack'});return;}" +
-        "if(v){if(a==='play')v.play();else if(a==='pause')v.pause();}" +
+        "if(v){if(a==='play')v.play();else if(a==='pause')v.pause();" +
+        // A removed element pauses without an event the page-level listener hears, so the pause is reported here.
+        "else if(a==='hidden'&&window.__bzPlaying&&!shown(v)){if(!v.paused)v.pause();send('pause',v);}}" +
         "for(var i=0;i<window.frames.length;i++){try{window.frames[i].postMessage({__bz:a},'*');}catch(e){}}};" +
         "}catch(e){}})();"
 
     /** Plays, pauses or skips the media of the page (any frame). [action] is play, pause, next or previous. */
     fun control(action: String): String = "(function(){try{if(window.__bzCmd)window.__bzCmd(${JSONObject.quote(action)});}catch(e){}})();"
+
+    /**
+     * Pauses the media of the page (any frame) that is no longer shown: removed, hidden, zero size, or in a hidden frame.
+     * Run after the page changed its address without loading a new document, as sites do when they move between pages.
+     */
+    val HIDDEN_CHECK = control("hidden")
 
     /**
      * Installed while background play is on: the page keeps believing it is visible when the app is not on screen,
